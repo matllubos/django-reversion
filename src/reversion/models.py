@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 
-from compressor.utils.decorators import cached_property
+from django.utils.functional import cached_property
 
 try:
     from django.contrib.contenttypes.fields import GenericForeignKey

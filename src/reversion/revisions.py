@@ -21,7 +21,6 @@ try:
 except ImportError:  # For Django < 1.7  pragma: no cover
     from django.db.models import get_model
 
-from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.signals import request_finished
@@ -31,12 +30,7 @@ from django.db.models.query import QuerySet
 from django.db.models.signals import post_save, post_delete, pre_delete, pre_save
 from django.utils.encoding import force_text
 
-try:
-    from django.contrib.contenttypes.fields import GenericRelation
-except ImportError:  # Django < 1.9 pragma: no cover
-    from django.contrib.contenttypes.generic import GenericRelation
-
-from reversion.models import Revision, Version, has_int_pk, pre_revision_commit, post_revision_commit
+from reversion.models import Version, has_int_pk, pre_revision_commit, post_revision_commit
 
 
 class VersionTypeOperator(object):
@@ -141,12 +135,15 @@ class VersionAdapter(object):
         return serializers.serialize(
             self.get_serialization_format(),
             (obj,),
-            fields = list(self.get_fields_to_serialize()),
+            fields=list(self.get_fields_to_serialize()),
         )
 
     def get_version_data(self, obj, db=None):
         """Creates the version data to be saved to the version model."""
         object_id = force_text(obj.pk)
+
+        from django.contrib.contenttypes.models import ContentType
+
         content_type = ContentType.objects.db_manager(db).get_for_model(obj)
         if has_int_pk(obj.__class__):
             object_id_int = int(obj.pk)
@@ -485,6 +482,11 @@ class RevisionManager(object):
         for signal in all_signals:
             signal.connect(self._signal_receiver, model)
 
+        try:
+            from django.contrib.contenttypes.fields import GenericRelation
+        except ImportError:  # Django < 1.9 pragma: no cover
+            from django.contrib.contenttypes.generic import GenericRelation
+
         model.reversion_versions = GenericRelation(Version)
         model.reversion_versions.contribute_to_class(model, 'reversion_versions')
 
@@ -512,11 +514,18 @@ class RevisionManager(object):
         del self._eager_signals[model]
 
         delattr(model, 'reversion_versions')
+
+        try:
+            from django.contrib.contenttypes.fields import GenericRelation
+        except ImportError:  # Django < 1.9 pragma: no cover
+            from django.contrib.contenttypes.generic import GenericRelation
+
         model.reversion_versions = GenericRelation(Version)
 
     def _follow_relationships(self, objects):
         """Follows all relationships in the given set of objects."""
         followed = set()
+
         def _follow(obj, version_type, exclude_concrete):
             # Check the pk first because objects without a pk are not hashable
             if obj.pk is None or obj in followed or (obj.__class__, obj.pk) == exclude_concrete:
@@ -561,6 +570,8 @@ class RevisionManager(object):
             # Check if there's some change in all the revision's objects.
             save_revision = True
             # Only save if we're always saving, or have changes.
+            from reversion.models import Revision
+
             if save_revision:
                 # Save a new revision.
                 revision = Revision(
@@ -601,9 +612,11 @@ class RevisionManager(object):
 
         The results are returned with the most recent versions first.
         """
+        from django.contrib.contenttypes.models import ContentType
+
         content_type = ContentType.objects.db_manager(db).get_for_model(model)
         versions = self._get_versions(db).filter(
-            content_type = content_type,
+            content_type=content_type,
         ).select_related('revision')
         if has_int_pk(model):
             # We can do this as a fast, indexed lookup.
@@ -652,11 +665,13 @@ class RevisionManager(object):
 
         The results are returned with the most recent versions first.
         """
+        from django.contrib.contenttypes.models import ContentType
+
         model_db = model_db or db
         content_type = ContentType.objects.db_manager(db).get_for_model(model_class)
         live_pk_queryset = model_class._default_manager.db_manager(model_db).all().values_list('pk', flat=True)
         versioned_objs = self._get_versions(db).filter(
-            content_type = content_type,
+            content_type=content_type,
         )
         if has_int_pk(model_class):
             # If the model and version data are in different databases, decouple the queries.
