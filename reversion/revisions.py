@@ -505,10 +505,11 @@ class RevisionManager(object):
             signal.connect(self._signal_receiver, model)
 
         model.reversion_versions = property(
-            lambda self: Version.objects.filter(object_id=self.id,
-                                                content_type=ContentType.objects.get_for_model(self)).order_by('-pk')
+            lambda self: Version.objects.filter(**{
+                'object_id_int' if has_int_pk(self) else 'object_id': self.id,
+                'content_type': ContentType.objects.get_for_model(self)
+            }).order_by('-pk')
         )
-
         return model
 
     def get_adapter(self, model):
