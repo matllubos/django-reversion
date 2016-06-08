@@ -256,6 +256,8 @@ class AuditLog(models.Model):
     created_at = models.DateTimeField(verbose_name=_('created at'), auto_now_add=True, db_index=True)
     versions = models.ManyToManyField(Version, verbose_name=_('versions'))
     comment = models.TextField(verbose_name=_('comment'), blank=True, help_text=_('A text comment on this revision.'))
+    slug = models.SlugField(editable=False, null=True, blank=True)
+    fingerprint = models.SlugField(editable=False, null=True, blank=True)
 
     def short_comment(self):
         return truncatechars(self.comment, config.AUDIT_LOG_SHORT_COMMENT_LENGTH)
