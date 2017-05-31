@@ -2,6 +2,8 @@
 
 from __future__ import unicode_literals
 
+import logging
+
 from functools import wraps, partial
 
 from threading import local
@@ -34,7 +36,11 @@ try:
 except ImportError:  # Django < 1.9 pragma: no cover
     from django.contrib.contenttypes.generic import GenericRelation
 
+from reversion import config
 from reversion.models import Revision, Version, has_int_pk, pre_revision_commit, post_revision_commit, AuditLog
+
+
+logger = logging.getLogger(__name__)
 
 
 class VersionTypeOperator(object):
@@ -492,9 +498,13 @@ class RevisionManager(object):
 
         # Prevent multiple registration.
         if self.is_registered(model):
-            raise RegistrationError('{model} has already been registered with django-reversion'.format(
-                model=model
-            ))
+            if config.RAISE_EXCEPTION_ON_MULTIPLE_MODEL_REGISTRATION:
+                raise RegistrationError('{model} has already been registered with django-reversion'.format(
+                    model=model
+                ))
+            else:
+                logger.error('{model} has already been registered with django-reversion'.format(model=model))
+                return model
         # Perform any customization.
         if field_overrides:
             adapter_cls = type(adapter_cls.__name__, (adapter_cls,), field_overrides)
