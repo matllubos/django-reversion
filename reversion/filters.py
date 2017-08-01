@@ -3,22 +3,28 @@ from __future__ import unicode_literals
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 
-
 try:
-    from is_core.filters.default_filters import DefaultMethodFilter
-    from is_core.filters.exceptions import FilterException
+    from pyston.filters.default_filters import SimpleMethodEqualFilter
+    from is_core.filters import UIFilterMixin
     from is_core.forms.models import ModelChoiceField
 except ImportError:
-    DefaultMethodFilter = object
-    FilterException = object
     from django.forms import ModelChoiceField
 
 
-class RelatedObjectsFilter(DefaultMethodFilter):
+    class SimpleMethodEqualFilter(object):
+        pass
+
+
+    class UIFilterMixin(object):
+        pass
+
+
+
+class RelatedObjectsFilter(SimpleMethodEqualFilter):
 
     widget = forms.TextInput()
 
-    def get_filter_term_without_prefix(self, value, suffix, request):
+    def get_filter_term(self, value, operator_slug, request):
         if '|' not in value:
             return {
                 'versions__object_id': value
@@ -31,11 +37,9 @@ class RelatedObjectsFilter(DefaultMethodFilter):
             }
 
 
-class RelatedObjectsWithIntIdFilter(DefaultMethodFilter):
+class RelatedObjectsWithIntIdFilter(SimpleMethodEqualFilter):
 
-    widget = forms.TextInput()
-
-    def get_filter_term_without_prefix(self, value, suffix, request):
+    def get_filter_term(self, value, operator_slug, request):
         if '|' not in value:
             return {
                 'versions__object_id_int': value
@@ -48,17 +52,13 @@ class RelatedObjectsWithIntIdFilter(DefaultMethodFilter):
             }
 
 
-class VersionIDFilter(DefaultMethodFilter):
-    widget = forms.TextInput()
+class VersionIDFilter(SimpleMethodEqualFilter):
 
-    def get_filter_term_without_prefix(self, value, suffix, request):
+    def get_filter_term(self, value, operator_slug, request):
         return {'versions__object_id': value}
 
 
-class VersionContextTypeFilter(DefaultMethodFilter):
-
-    ALL_LABEL = '--------'
-    ALL_SLUG = '__all__'
+class VersionContextTypeFilter(UIFilterMixin, SimpleMethodEqualFilter):
 
     def get_widget(self, request):
         if self.widget:
@@ -68,12 +68,8 @@ class VersionContextTypeFilter(DefaultMethodFilter):
         formfield.choices = list(formfield.choices)
         if not formfield.choices[0][0]:
             del formfield.choices[0]
-        formfield.choices.insert(0, (self.ALL_SLUG, self.ALL_LABEL))
+        formfield.choices.insert(0, ('', ''))
         return formfield.widget
 
-    def get_filter_term_without_prefix(self, value, suffix, request):
-        if not suffix:
-            if value == self.ALL_SLUG:
-                return {}
-
+    def get_filter_term(self, value, operator_slug, request):
         return {'versions__content_type': value}

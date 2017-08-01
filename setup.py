@@ -14,7 +14,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'django>=1.6',
-        'django-chamber>=0.1.20'
+        'django-chamber>=0.3.6'
     ],
     extras_require={
         'diff': [
@@ -36,7 +36,7 @@ setup(
         'Framework :: Django',
     ],
     dependency_links=[
-        'https://github.com/druids/django-chamber/tarball/0.1.20#egg=django-chamber-0.1.20',
+        'https://github.com/druids/django-chamber/tarball/0.3.6#egg=django-chamber-0.3.6',
     ],
 
 )
