@@ -475,6 +475,7 @@ class RevisionManager(object):
 
     def register(self, model=None, adapter_cls=VersionAdapter, signals=None, eager_signals=None, follow_parents=True,
                  **field_overrides):
+
         """Registers a model with this revision manager."""
         # Default to post_save and post_delete if no signals are given
         if signals is None and eager_signals is None:
@@ -498,6 +499,7 @@ class RevisionManager(object):
 
         # Prevent multiple registration.
         if self.is_registered(model):
+
             if config.RAISE_EXCEPTION_ON_MULTIPLE_MODEL_REGISTRATION:
                 raise RegistrationError('{model} has already been registered with django-reversion'.format(
                     model=model
@@ -768,20 +770,27 @@ class RevisionManager(object):
 default_revision_manager = RevisionManager('default')
 
 
-def create_command_revision(cls, manage_manually=False):
+def create_command_revision(manage_manually=False, surround_with_decorator=None):
     """Login decorator for all methods inside test usage: @login(user_data)"""
 
     def _command_revision(cls):
-        func = getattr(cls, 'handle')
+        method = getattr(cls, 'handle')
 
         def _set_comment(*args, **kwargs):
-            revision_context_manager.set_comment('Command log from "%s", args "%s"' % (sys.argv[1], ' '.join(sys.argv[2:])))
-            return func(*args, **kwargs)
+            revision_context_manager.set_comment(
+                'Command log from "%s", args "%s"' % (sys.argv[1], ' '.join(sys.argv[2:]))
+            )
+            return method(*args, **kwargs)
 
-        setattr(cls, 'handle', revision_context_manager.create_revision(manage_manually)(_set_comment))
+        decorated_method = revision_context_manager.create_revision(manage_manually)(_set_comment)
+        if surround_with_decorator:
+            decorated_method = surround_with_decorator(
+                revision_context_manager.create_revision(manage_manually)(_set_comment)
+            )
+        setattr(cls, 'handle', decorated_method)
         return cls
 
-    return _command_revision(cls)
+    return _command_revision if isinstance(manage_manually, bool) else _command_revision(manage_manually)
 
 
 # Legacy revision reference.
