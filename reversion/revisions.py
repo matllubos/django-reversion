@@ -776,11 +776,12 @@ def create_command_revision(manage_manually=False, surround_with_decorator=None)
     def _command_revision(cls):
         method = getattr(cls, 'handle')
 
-        def _set_comment(*args, **kwargs):
-            revision_context_manager.set_comment(
-                'Command log from "%s", args "%s"' % (sys.argv[1], ' '.join(sys.argv[2:]))
-            )
-            return method(*args, **kwargs)
+        def _set_comment(command, *args, **kwargs):
+            if command._called_from_command_line:
+                revision_context_manager.set_comment(
+                    'Command log from "%s", args "%s"' % (sys.argv[1], ' '.join(sys.argv[2:]))
+                )
+            return method(command, *args, **kwargs)
 
         decorated_method = revision_context_manager.create_revision(manage_manually)(_set_comment)
         if surround_with_decorator:
