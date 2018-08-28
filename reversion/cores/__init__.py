@@ -4,14 +4,14 @@ from is_core.main import UIRESTModelISCore
 
 from reversion.models import Revision, AuditLog
 
-from .views import ReversionEditView, ReversionHistoryView, VersionInlineFormView
+from .views import ReversionDetailView, ReversionHistoryView, VersionInlineFormView
 
 
 class DataRevisionISCore(UIRESTModelISCore):
 
     abstract = True
     model = Revision
-    list_display = ('created_at', 'user', 'comment')
+    ui_list_fields = ('created_at', 'user', 'comment')
     rest_list_fields = ('pk',)
     rest_list_obj_fields = ('pk',)
     menu_group = 'data-revision'
@@ -32,10 +32,11 @@ class ReversionUIRESTModelISCore(UIRESTModelISCore):
     create_permission = False
     delete_permission = False
 
+    ui_detail_view = ReversionDetailView
+
     def get_view_classes(self):
-        view_classes = super(ReversionUIRESTModelISCore, self).get_view_classes()
+        view_classes = super().get_view_classes()
         view_classes['history'] = (r'^/(?P<pk>\d+)/history/?$', ReversionHistoryView)
-        view_classes['edit'] = (r'^/(?P<pk>\d+)/$', ReversionEditView)
         return view_classes
 
 
@@ -43,7 +44,7 @@ class AuditLogUIRESTModelISCore(UIRESTModelISCore):
 
     abstract = True
     model = AuditLog
-    list_display = ('created_at', 'related_objects', 'content_types', 'object_pks', 'short_comment', 'priority', 'slug')
+    ui_list_fields = ('created_at', 'related_objects', 'content_types', 'object_pks', 'short_comment', 'priority', 'slug')
     form_fields = ('created_at', 'comment', 'priority', 'slug', 'related_objects_display', 'revisions_display')
     menu_group = 'audit-log'
     create_permission = False

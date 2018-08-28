@@ -1,11 +1,9 @@
-from __future__ import unicode_literals
-
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.core.urlresolvers import reverse
 
 from is_core.generic_views.inlines.inline_objects_views import TabularInlineObjectsView
 from is_core.generic_views.mixins import TabsViewMixin
-from is_core.generic_views.form_views import EditModelFormView, DetailModelFormView
+from is_core.generic_views.form_views import DetailModelFormView, ReadonlyDetailModelFormView
 from is_core.patterns import reverse_pattern
 
 from reversion.models import Version
@@ -74,7 +72,7 @@ class ReversionBreadCrumbsTabsViewMixin(ReversionTabsViewMixin):
         ]
 
 
-class ReversionEditView(ReversionTabsViewMixin, EditModelFormView):
+class ReversionDetailView(ReversionTabsViewMixin, ReadonlyDetailModelFormView):
     pass
 
 
@@ -94,7 +92,7 @@ class ListVersionInlineView(TabularInlineObjectsView):
         return self.parent_instance.reversion_versions.all()
 
 
-class ReversionHistoryView(ReversionBreadCrumbsTabsViewMixin, DetailModelFormView):
+class ReversionHistoryView(ReversionBreadCrumbsTabsViewMixin, ReadonlyDetailModelFormView):
 
     def get_title(self):
         return ugettext('History of %s') % self.get_obj()
