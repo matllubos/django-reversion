@@ -1,5 +1,5 @@
-django==1.9
-https://github.com/druids/django-chamber/tarball/0.3.6#egg=django-chamber-0.3.6
-https://github.com/LukasRychtecky/germanium/tarball/1.0.14#egg=germanium-1.0.14
+django==1.11
+django-is-core==2.18.21
+django-germanium==2.1.2
 diff-match-patch==20110725.1
 coverage==4.0.2
