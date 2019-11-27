@@ -3,6 +3,8 @@
 from __future__ import unicode_literals
 
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.deprecation import MiddlewareMixin
+
 
 from reversion.revisions import revision_context_manager
 
@@ -10,7 +12,7 @@ from reversion.revisions import revision_context_manager
 REVISION_MIDDLEWARE_FLAG = 'reversion.revision_middleware_active'
 
 
-class RevisionMiddleware(object):  # pragma: no cover
+class RevisionMiddleware(MiddlewareMixin):  # pragma: no cover
 
     """Wraps the entire request in a revision."""
 

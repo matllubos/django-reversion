@@ -38,7 +38,7 @@ cleanvar: clean cleanvirtualenv
 
 
 pip:
-	$(PYTHON_BIN)/pip install --process-dependency-links --allow-all-external -r requirements/base.txt
+	$(PYTHON_BIN)/pip install -r requirements/base.txt
 
 initvirtualenv:
 	virtualenv -p $(PYTHON) --no-site-packages $(VIRTUAL_ENV)
