@@ -37,7 +37,8 @@ except ImportError:  # Django < 1.9 pragma: no cover
     from django.contrib.contenttypes.generic import GenericRelation
 
 from reversion import config
-from reversion.models import Revision, Version, has_int_pk, pre_revision_commit, post_revision_commit, AuditLog
+from reversion.models import Revision, Version, has_int_pk, AuditLog
+from reversion.signals import pre_revision_commit, post_revision_commit
 
 
 logger = logging.getLogger(__name__)

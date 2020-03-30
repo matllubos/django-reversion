@@ -12,7 +12,6 @@ from django.conf import settings
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, IntegrityError, transaction
-from django.dispatch.dispatcher import Signal
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import force_text, python_2_unicode_compatible
@@ -346,7 +345,3 @@ class AuditLog(models.Model):
         verbose_name = _('audit log')
         verbose_name_plural = _('audit logs')
         ordering = ('-created_at',)
-
-# Version management signals.
-pre_revision_commit = Signal(providing_args=['instances', 'revision', 'versions'])
-post_revision_commit = Signal(providing_args=['instances', 'revision', 'versions'])
