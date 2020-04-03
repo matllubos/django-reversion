@@ -1,5 +1,5 @@
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from is_core.generic_views.inlines.inline_objects_views import TabularInlineObjectsView
 from is_core.generic_views.mixins import TabsViewMixin

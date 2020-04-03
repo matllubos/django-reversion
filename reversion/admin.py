@@ -17,7 +17,7 @@ try:
     from django.contrib.contenttypes.fields import GenericRelation
 except ImportError:  # Django < 1.9  pragma: no cover
     from django.contrib.contenttypes.generic import GenericInlineModelAdmin, GenericRelation
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.shortcuts import get_object_or_404, render
 from django.utils.text import capfirst
@@ -117,7 +117,7 @@ class VersionAdmin(admin.ModelAdmin):
             ct_field = inline.ct_field
             fk_name = inline.ct_fk_field
             for field in self.model._meta.virtual_fields:
-                if isinstance(field, GenericRelation) and field.rel.to == inline_model and field.object_id_field_name == fk_name and field.content_type_field_name == ct_field:
+                if isinstance(field, GenericRelation) and field.related_model == inline_model and field.object_id_field_name == fk_name and field.content_type_field_name == ct_field:
                     follow_field = field.name
                     break
         elif issubclass(inline, options.InlineModelAdmin):
@@ -125,7 +125,7 @@ class VersionAdmin(admin.ModelAdmin):
             fk_name = inline.fk_name
             if not fk_name:
                 for field in inline_model._meta.fields:
-                    if isinstance(field, (models.ForeignKey, models.OneToOneField)) and issubclass(self.model, field.rel.to):
+                    if isinstance(field, (models.ForeignKey, models.OneToOneField)) and issubclass(self.model, field.related_model):
                         fk_name = field.name
                         break
             if fk_name and not inline_model._meta.get_field(fk_name).rel.is_hidden():

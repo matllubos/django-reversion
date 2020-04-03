@@ -14,9 +14,7 @@ SETTINGS = settings
 DJANGO_SETTINGS_MODULE = $(DJANGO_DIR).settings.$(SETTINGS)
 DJANGO_POSTFIX = --settings=$(DJANGO_SETTINGS_MODULE) --pythonpath=$(PYTHONPATH)
 PYTHON_BIN = $(VIRTUAL_ENV)/bin
-PYTHON_VERSION_FULL := $(wordlist 2,4,$(subst ., ,$(shell python --version 2>&1)))
-PYTHON_VERSION_MAJOR := $(word 1,${PYTHON_VERSION_FULL}).$(word 2,${PYTHON_VERSION_FULL})
-PYTHON = python$(PYTHON_VERSION_MAJOR)
+PYTHON = python3
 TYPE = dev
 OS = $(shell uname)
 
@@ -50,7 +48,7 @@ bootstrap: initvirtualenv pip
 reinstallvirtualenv: cleanvirtualenv bootstrap initvirtualenv initenv
 
 test: clean
-	$(PYTHON_BIN)/python $(LOCALPATH)/manage.py test $(test_modules)  --liveserver=localhost:$(DJANGO_TEST_PORTS) $(DJANGO_POSTFIX) -v 2
+	$(PYTHON_BIN)/python $(LOCALPATH)/manage.py test $(test_modules) $(DJANGO_POSTFIX) -v 2
 
 htmlcoverage: test
 	$(PYTHON_BIN)/coverage html -d $(LOCALPATH)/var/reports/htmlcov --omit */site-packages/*,*/migrations/*,*/lib/*
@@ -60,7 +58,6 @@ initdb:
 	mkdir -p $(LOCALPATH)/var/db
 
 syncdb:
-	$(PYTHON_BIN)/python manage.py syncdb --noinput $(DJANGO_POSTFIX)
 	$(MAKE) migrate
 
 initdata: syncmedia
@@ -109,11 +106,8 @@ endif
 datamigration:
 	$(PYTHON_BIN)/python manage.py datamigration $(app) $(name) $(DJANGO_POSTFIX)
 
-install: cleanvar bootstrap initlog linklibrary initdb syncdb initdata initenv
+install: cleanvar bootstrap initlog initdb syncdb initdata initenv
 
 update: clean cleanvirtualenv bootstrap syncdb initenv
 
 include build/Makefile.$(OS)
-
-linklibrary:
-	ln -sf $(LOCALPATH)/../reversion/ $(LOCALPATH)/var/ve/lib/python$(PYTHON_VERSION_MAJOR)/site-packages/;

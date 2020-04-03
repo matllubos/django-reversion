@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('object_id', models.IntegerField(db_index=True)),
                 ('name', models.CharField(max_length=100)),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -76,7 +76,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ChildTestAdminModel',
             fields=[
-                ('parenttestadminmodel_ptr', models.OneToOneField(parent_link=True, to='test_reversion.ParentTestAdminModel', auto_created=True, serialize=False, primary_key=True)),
+                ('parenttestadminmodel_ptr', models.OneToOneField(parent_link=True, to='test_reversion.ParentTestAdminModel', auto_created=True, serialize=False, primary_key=True, on_delete=models.CASCADE)),
                 ('child_name', models.CharField(max_length=200)),
             ],
             options={
@@ -97,7 +97,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ReversionTestModel1Child',
             fields=[
-                ('reversiontestmodel1_ptr', models.OneToOneField(parent_link=True, to='test_reversion.ReversionTestModel1', auto_created=True, serialize=False, primary_key=True)),
+                ('reversiontestmodel1_ptr', models.OneToOneField(parent_link=True, to='test_reversion.ReversionTestModel1', auto_created=True, serialize=False, primary_key=True, on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -131,7 +131,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('age', models.IntegerField()),
-                ('revision', models.OneToOneField(to='reversion.Revision')),
+                ('revision', models.OneToOneField(to='reversion.Revision', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -142,7 +142,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('name', models.CharField(max_length=100)),
-                ('test_model_1', models.ForeignKey(to='test_reversion.ReversionTestModel1')),
+                ('test_model_1', models.ForeignKey(to='test_reversion.ReversionTestModel1', on_delete=models.CASCADE)),
                 ('test_model_2s', models.ManyToManyField(to='test_reversion.ReversionTestModel2')),
             ],
             options={
@@ -153,13 +153,14 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='inlinetestunrelatedchildmodel',
             name='parent',
-            field=models.ForeignKey(to='test_reversion.InlineTestUnrelatedParentModel'),
+            field=models.ForeignKey(to='test_reversion.InlineTestUnrelatedParentModel', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='inlinetestchildmodel',
             name='parent',
-            field=models.ForeignKey(to='test_reversion.InlineTestParentModel', related_name='children'),
+            field=models.ForeignKey(to='test_reversion.InlineTestParentModel', related_name='children',
+                                    on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.CreateModel(
