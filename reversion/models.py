@@ -111,7 +111,7 @@ def has_int_pk(model):
             isinstance(pk, (models.IntegerField, models.AutoField)) and
             not isinstance(pk, models.BigIntegerField)
         ) or (
-            isinstance(pk, models.ForeignKey) and has_int_pk(pk.rel.to)
+            isinstance(pk, models.ForeignKey) and has_int_pk(pk.related_model)
         )
     )
 
@@ -130,14 +130,16 @@ class Version(models.Model):
     )
 
     revision = models.ForeignKey(Revision, verbose_name=_('revision'),
-                                 help_text=_('The revision that contains this version.'), related_name='versions')
+                                 help_text=_('The revision that contains this version.'), related_name='versions',
+                                 on_delete=models.CASCADE)
     object_id = models.TextField(verbose_name=_('object id'),
                                  help_text=_('Primary key of the model under version control.'))
     object_id_int = models.IntegerField(
         verbose_name=_('object id int'), blank=True, null=True, db_index=True,
         help_text=_('An indexed, integer version of the stored model\'s primary key, used for faster lookups.'),
     )
-    content_type = models.ForeignKey(ContentType, help_text=_('Content type of the model under version control.'))
+    content_type = models.ForeignKey(ContentType, help_text=_('Content type of the model under version control.'),
+                                     on_delete=models.CASCADE)
 
     # A link to the current instance, not the version stored in this Version!
     object = GenericForeignKey()

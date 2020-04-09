@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='version',
             name='revision',
-            field=models.ForeignKey(verbose_name='revision', help_text='The revision that contains this version.', to='reversion.Revision', related_name='versions'),
+            field=models.ForeignKey(verbose_name='revision', help_text='The revision that contains this version.', to='reversion.Revision', related_name='versions', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='version',

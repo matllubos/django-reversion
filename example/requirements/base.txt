@@ -1,5 +1,6 @@
-django==1.11
-django-is-core==2.18.21
-django-germanium==2.1.2
+django~=2.2
+django-is-core==2.18.4
+django-germanium==2.2.1
 diff-match-patch==20110725.1
-coverage==4.0.2
+coverage==5.0.4
+-e ../

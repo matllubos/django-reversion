@@ -113,7 +113,7 @@ class VersionAdapter(object):
         fields = self.fields or (field.name for field in opts.local_fields + opts.local_many_to_many)
         fields = (opts.get_field(field) for field in fields if field not in self.exclude)
         for field in fields:
-            if field.rel:
+            if field.is_relation:
                 yield field.name
             else:
                 yield field.attname
@@ -127,9 +127,8 @@ class VersionAdapter(object):
             except models.FieldDoesNotExist:
                 pass
             else:
-                if isinstance(related_field, models.ForeignKey):
-                    if hasattr(obj, related_field.get_cache_name()):
-                        delattr(obj, related_field.get_cache_name())
+                if related_field.is_relation and related_field.is_cached(obj):
+                    related_field.delete_cached_value(obj)
             # Get the referenced obj(s).
             try:
                 related = getattr(obj, relationship)
